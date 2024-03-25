@@ -28,7 +28,7 @@
                 <div class="icon-img">
                     <img src="images/icon-upload.svg" alt="" aria-hidden="true" />
                 </div>
-                <button type="button" class="icon-img" onclick="openFile()">
+                <button type="button" class="icon-img" onclick="document.getElementById('fileInput').click()">
                     <strong>Upload Image</strong>
                 </button>
                 <input type="file" id="fileInput" accept=".jpg, .jpeg, .gif, .png" onchange="fileSelection()" multiple>
