@@ -1,49 +1,50 @@
-const totalSizeLimit = 15;
+const totalSizeLimitBytes = 15 * 1024 * 1024;
 let totalUploadedSize = 0;
-const MB = 1024 * 1024;
 
 const fileSelection = () => {
   const selectedFiles = Array.from(document.getElementById('fileInput').files);
   const validFileExtensionsRegex = /\.(gif|jpe?g|tiff?|png|webp|bmp)$/i;
-  const remainingStorage = calculateRemainingStorage();
 
   selectedFiles.forEach((selectedFile) => {
     const fileName = selectedFile.name;
 
     if (validFileExtensionsRegex.test(fileName)) {
-      const fileSize = selectedFile.size;
+      const fileSizeBytes = selectedFile.size;
 
-      if (fileSize / MB > remainingStorage) {
+      if ((totalUploadedSize + fileSizeBytes) <= totalSizeLimitBytes) {
+        totalUploadedSize += fileSizeBytes;
+      } else {
         alert("There is not enough space on the disk for file: " + fileName);
         return;
       }
-      totalUploadedSize += fileSize;
     } else {
       alert("File format isn't supported for file: " + fileName);
     }
   });
 
-  updateProgressBar(remainingStorage);
+  const remainingStorageBytes = totalSizeLimitBytes - totalUploadedSize;
+  updateProgressBar(remainingStorageBytes);
   updateUploadedStorage();
 };
 
-const updateProgressBar = (remainingStorage) => {
+const updateProgressBar = (remainingStorageBytes) => {
   const progressBar = document.querySelector('.gradient-bar');
   const mbLeft = document.getElementById('mbLeft');
-  const percentageCalc = (totalUploadedSize / (totalSizeLimit * MB)) * 100;
+  const percentageCalc = (totalUploadedSize / totalSizeLimitBytes) * 100;
   progressBar.style.width = percentageCalc + '%';
-  mbLeft.textContent = remainingStorage.toFixed(2) + ' MB LEFT';
+  mbLeft.textContent = (remainingStorageBytes / (1024 * 1024)).toFixed(2) + ' MB LEFT';
 };
 
 const updateUploadedStorage = () => {
   const usedStorageElement = document.getElementById('usedStorage');
-  const uploadedSizeInMB = totalUploadedSize / MB;
+  const uploadedSizeInMB = totalUploadedSize / (1024 * 1024);
   usedStorageElement.textContent = uploadedSizeInMB.toFixed(2) + ' MB';
 };
 
-const calculateRemainingStorage = () => totalSizeLimit - (totalUploadedSize / MB);
+const calculateRemainingStorage = () => totalSizeLimitBytes;
 
 window.onload = () => {
-  const remainingStorage = calculateRemainingStorage();
-  updateProgressBar(remainingStorage);
+  updateProgressBar(totalSizeLimitBytes);
+  updateUploadedStorage();
 };
+
